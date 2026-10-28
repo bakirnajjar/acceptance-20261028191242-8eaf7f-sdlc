@@ -126,8 +126,8 @@ def test_tc_003_recovery_link_reaches_request_form() -> None:
     assert email["type"] == "email"
 
 
-def test_tc_003_unimplemented_submissions_do_not_claim_success() -> None:
-    """The entry forms deliberately have no POST handler in TASK-001."""
+def test_tc_003_sign_in_stays_unimplemented_and_forgot_requires_csrf() -> None:
+    """Sign-in still has no success flow; a bare recovery POST is rejected."""
     client = create_app().test_client()
     assert (
         client.post(
@@ -137,7 +137,7 @@ def test_tc_003_unimplemented_submissions_do_not_claim_success() -> None:
     )
     assert (
         client.post("/password/forgot", data={"email": "a@example.com"}).status_code
-        == 405
+        == 400
     )
 
 

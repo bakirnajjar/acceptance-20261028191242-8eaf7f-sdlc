@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
+from hashlib import sha256
 from secrets import token_urlsafe
 from threading import RLock
 from typing import Literal
@@ -99,6 +100,37 @@ class RecoveryState:
         with self._lock:
             account_id = self._account_ids_by_email.get(email.strip().casefold())
             return self._accounts_by_id.get(account_id) if account_id else None
+
+    def request_reset(self, email: str, reset_origin: str) -> None:
+        """Privately issue at most five owner links in the preceding rolling hour.
+
+        The caller validates the form and trusted origin. No eligibility or token
+        is returned to the HTTP handler, including for unknown accounts.
+        """
+        with self._lock:
+            account_id = self._account_ids_by_email.get(email.strip().casefold())
+            if account_id is None:
+                return
+            now = self.now()
+            cutoff = now - timedelta(hours=1)
+            accepted = sum(
+                request.account_id == account_id and cutoff < request.accepted_at <= now
+                for request in self._requests
+            )
+            if accepted >= 5:
+                return
+
+            raw_token = token_urlsafe(32)
+            digest = sha256(raw_token.encode("ascii")).hexdigest()
+            while digest in self._tokens:
+                raw_token = token_urlsafe(32)
+                digest = sha256(raw_token.encode("ascii")).hexdigest()
+            owner = self._accounts_by_id[account_id]
+            link = f"{reset_origin}/password/reset/{raw_token}"
+            notification = Notification("reset_link", owner.normalized_email, now, link)
+            self._requests.append(ResetRequest(account_id, now))
+            self._tokens[digest] = ResetToken(digest, account_id, now)
+            self._notifications.append(notification)
 
     def register_session(self, account_id: str) -> Session:
         """Register a fixture session without defining any sign-in success flow."""
