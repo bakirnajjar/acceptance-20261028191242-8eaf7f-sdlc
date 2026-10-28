@@ -2,10 +2,13 @@
 
 from flask import Flask, render_template
 
+from password_reset_exercise.state import Clock, RecoveryState
 
-def create_app() -> Flask:
-    """Create the server-rendered entry pages for sign-in and recovery."""
+
+def create_app(*, clock: Clock | None = None) -> Flask:
+    """Create entry pages with isolated, private synthetic state per app."""
     app = Flask(__name__)
+    app.extensions["recovery_state"] = RecoveryState(clock=clock)
 
     @app.get("/sign-in")
     def sign_in() -> str:
