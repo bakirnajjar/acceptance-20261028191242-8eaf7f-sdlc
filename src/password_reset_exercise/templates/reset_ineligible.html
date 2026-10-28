@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Reset link unavailable{% endblock %}
+{% block content %}
+  <section class="panel" aria-labelledby="page-heading">
+    <h1 id="page-heading">Reset link unavailable</h1>
+    <p role="alert">This reset link cannot be used. Request another link to try again.</p>
+    <a class="back-link" href="{{ url_for('forgot_password') }}">Request another link</a>
+    <a class="back-link" href="{{ url_for('sign_in') }}">Back to sign in</a>
+  </section>
+{% endblock %}

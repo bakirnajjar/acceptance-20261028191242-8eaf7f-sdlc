@@ -1,0 +1,573 @@
+{
+  "schema_version": "1.0",
+  "source_references": [
+    {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+    {"source_type": "attachment", "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84", "locator": "sign-in-wireframe.png"},
+    {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+  ],
+  "assumptions": [
+    "These are proposed verification cases, not implemented, executed, or passing tests. Approved requirements and tasks provide identifier linkage; the prior-output reader supplied no source-reference locator, so citations use only original evidence.",
+    "The supplied image establishes the sign-in hierarchy and visual treatment only, not exact CSS measurements, recovery-screen presentation, sign-in success behavior, or a working session-creation flow. Accessibility and recovery-state presentation checks are proposed UI checks rather than image observations or additional approved policy.",
+    "An accepted request for an existing synthetic account records a link privately in the in-memory sink; the public response does not disclose issuance. The five-request allowance is per account over the preceding rolling hour, with timestamps at or before now minus one hour outside the window.",
+    "An unused reset link is eligible on submission strictly before its actual issue time plus 30 minutes; GET/open time does not extend expiry. Synthetic fixtures can register independent active sessions without requiring a defined sign-in success destination.",
+    "A nonempty new password is used to exercise reset completion; no mandatory complexity, maximum size, confirmation field, recovery-page wording, or external delivery policy is inferred. Production limitations and negative delivery-scope checks require future project/action evidence."
+  ],
+  "open_questions": [
+    {"question": "What sign-in authentication, success destination, and session-creation behavior are expected?", "blocking": false, "context": "TC-017 uses independently registered synthetic sessions to check REQ-009 without inventing login behavior."},
+    {"question": "What recovery-page wording, layout, and invalid-link navigation should be used?", "blocking": false, "context": "Only the sign-in image supplies visual evidence; TC-028 and TC-029 propose functional and accessibility checks without requiring exact recovery styling."},
+    {"question": "Is there an additional new-password policy or confirmation-field requirement?", "blocking": false, "context": "TC-016 tests empty versus nonempty input, without assuming an unapproved length or complexity threshold."},
+    {"question": "Will a complete delivery-action record be available to establish that no deployment occurred?", "blocking": false, "context": "TC-026 records a verification gap instead of a pass if actions or published endpoints cannot be reviewed."}
+  ],
+  "stage": "test_case_design",
+  "test_cases": [
+    {
+      "id": "TC-001",
+      "title": "Sign-in surface matches observed wireframe hierarchy",
+      "requirement_ids": ["REQ-001"],
+      "task_ids": ["TASK-001"],
+      "steps": [
+        "1. With the Flask test client running, GET the sign-in page and render its returned HTML in a browser.",
+        "2. Inspect the panel, heading, fields, placeholders, link, button, footer, and their visual order against the supplied sign-in image."
+      ],
+      "expected_results": [
+        "The white page has a centered bordered panel headed by bold 'Sign in', with stacked 'Email address' and 'Password' labeled inputs and 'name@example.com' and masked '********' placeholders.",
+        "A blue underlined 'Forgot password?' link appears below Password and above a wide dark 'Sign in' button; the muted footer reads 'No account? Contact your administrator.'. Exact pixels and color codes are not asserted."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "attachment", "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84", "locator": "sign-in-wireframe.png"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-002",
+      "title": "Sign-in controls remain usable without placeholders",
+      "requirement_ids": ["REQ-001"],
+      "task_ids": ["TASK-001"],
+      "steps": [
+        "1. Open sign-in with keyboard and screen reader; traverse email, password, recovery link, and submit in that order.",
+        "2. Remove placeholder visibility by entering sample values, then inspect accessible names, focus indicators, and legibility of the muted footer."
+      ],
+      "expected_results": [
+        "Email and password each retain a programmatically associated label; the recovery link and submit have discernible names and logical keyboard order.",
+        "Focus is visibly indicated and text including the footer remains readable. These are proposed accessibility checks, not pixel specifications supplied by the image."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "attachment", "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84", "locator": "sign-in-wireframe.png"}
+      ]
+    },
+    {
+      "id": "TC-003",
+      "title": "Recovery link enters a usable reset request",
+      "requirement_ids": ["REQ-002"],
+      "task_ids": ["TASK-001"],
+      "steps": [
+        "1. GET sign-in with a client that follows real anchors and locate 'Forgot password?'.",
+        "2. Activate its link and inspect the destination with JavaScript disabled."
+      ],
+      "expected_results": [
+        "The link resolves to a reachable server-rendered password-reset request page with an email request control, not a decorative or dead anchor.",
+        "No specific recovery-page styling or successful sign-in destination is required."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "attachment", "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84", "locator": "sign-in-wireframe.png"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-004",
+      "title": "Existing and unknown accounts receive equivalent responses",
+      "requirement_ids": ["REQ-003"],
+      "task_ids": ["TASK-003"],
+      "steps": [
+        "1. Seed synthetic owner A and a distinct well-formed unknown email; reset isolated sink and request counters.",
+        "2. POST otherwise identical valid reset requests for each address under the limit, collecting HTTP status, rendered body, and navigation/redirect class.",
+        "3. Separately inspect the private sink, never via a public endpoint."
+      ],
+      "expected_results": [
+        "Public statuses, content, and navigation class match after neutralizing only unavoidable request-specific transport data; neither response identifies the account or reports link issuance.",
+        "Private issuance can differ: A may have a link entry while the unknown address does not."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-005",
+      "title": "At-limit responses do not identify accounts or throttling",
+      "requirement_ids": ["REQ-003"],
+      "task_ids": ["TASK-003"],
+      "steps": [
+        "1. Freeze UTC time; record five accepted requests for synthetic owner A in the preceding hour and the resulting five links.",
+        "2. Submit A's sixth valid request and an otherwise equivalent well-formed unknown-address request; compare public status, body, and navigation.",
+        "3. Inspect A's private link count."
+      ],
+      "expected_results": [
+        "Public results are identical, with no owner, issuance, or throttle-status disclosure.",
+        "A's private link count remains five."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-006",
+      "title": "Sixth request inside rolling hour issues no link",
+      "requirement_ids": ["REQ-004"],
+      "task_ids": ["TASK-003"],
+      "steps": [
+        "1. At controlled UTC t0, seed owner A and submit five valid requests with timestamps within one rolling hour; count A's private link entries.",
+        "2. Before the oldest ages out, submit a sixth request for A; compare its public result to the first accepted result and recount links."
+      ],
+      "expected_results": [
+        "The first five each yield one private link (five total); the sixth yields zero additional links.",
+        "The sixth returns the same generic public response as an accepted otherwise equivalent request."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-007",
+      "title": "First five requests allowed independently per account",
+      "requirement_ids": ["REQ-004"],
+      "task_ids": ["TASK-003"],
+      "steps": [
+        "1. Seed independent synthetic accounts A and B with empty counters and set a controlled UTC clock.",
+        "2. Submit A's first through fifth valid requests within one hour, inspecting A's private link count after each.",
+        "3. Submit B's first request within the same hour and inspect B's count."
+      ],
+      "expected_results": [
+        "A's counts progress 1, 2, 3, 4, 5, one accepted link per request.",
+        "B receives its own first link; A's allowance does not consume B's per-account allowance."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-008",
+      "title": "Rolling-hour allowance reopens at oldest timestamp",
+      "requirement_ids": ["REQ-004"],
+      "task_ids": ["TASK-003"],
+      "steps": [
+        "1. Seed five accepted A requests with the oldest at t0 and the other four strictly after t0; count five private links.",
+        "2. Submit another A request at t0 + one hour - one microsecond; record response and link count.",
+        "3. Retry at exactly t0 + one hour; record response and link count."
+      ],
+      "expected_results": [
+        "Just before the boundary, all five precede the request in the hour and no sixth link is recorded.",
+        "At the boundary the oldest is outside the preceding rolling hour, so one new link is recorded (six total); the public response remains the same generic result both times."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-009",
+      "title": "Accepted owner request privately issues a usable link",
+      "requirement_ids": ["REQ-005"],
+      "task_ids": ["TASK-003"],
+      "steps": [
+        "1. Seed synthetic owner A below the cap and snapshot the private notification sink.",
+        "2. Submit a well-formed request for A; inspect the new sink entry and open its issued link before expiry."
+      ],
+      "expected_results": [
+        "Exactly one new reset-link entry is addressed to A and contains a link eligible for A's new-password form.",
+        "The public request response contains neither the link nor confirmation that A exists."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-010",
+      "title": "Used link cannot complete a second password reset",
+      "requirement_ids": ["REQ-006"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. Issue an unused A link; before expiry POST a nonempty new password and snapshot A's password hash, session generation, and reset-success notices.",
+        "2. POST the same link again with a different nonempty password."
+      ],
+      "expected_results": [
+        "The first completion succeeds and consumes the link; the replay does not show success.",
+        "Replay changes neither A's password hash nor session generation and adds no reset-success notice."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-011",
+      "title": "Competing submissions of one link yield one winner",
+      "requirement_ids": ["REQ-006"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. Issue an eligible A link; GET the form twice and verify the link remains unused.",
+        "2. Coordinate two near-simultaneous POST submissions of that link with distinct nonempty passwords; inspect both results and internal effects."
+      ],
+      "expected_results": [
+        "GET does not consume the token; exactly one POST succeeds, updating A's password once and adding exactly one reset-success notice.",
+        "The losing POST is ineligible, cannot overwrite the winning value, and adds no additional success effect."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-012",
+      "title": "Link remains eligible immediately before issue-time expiry",
+      "requirement_ids": ["REQ-007"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. With an injectable UTC clock, set request time t0, actual link issuance t0 + two minutes, sink read t0 + four minutes, and form open t0 + five minutes; retain recorded issued_at.",
+        "2. Submit the still-unused link and a nonempty new password at issued_at + 30 minutes - one microsecond."
+      ],
+      "expected_results": [
+        "The POST is eligible and completes the reset immediately before the issue-time deadline.",
+        "Eligibility is measured from recorded issuance, not request, sink-read/send, or GET/open time."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-013",
+      "title": "Exact thirty-minute boundary and later POSTs are ineligible",
+      "requirement_ids": ["REQ-007"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. Use two separate fresh A tokens with recorded issued_at and open each valid form before expiry.",
+        "2. POST one at exactly issued_at + 30 minutes and the other at issued_at + 30 minutes + one microsecond with nonempty passwords.",
+        "3. Inspect A's password, success notices, and rendered states after each."
+      ],
+      "expected_results": [
+        "Both POSTs are ineligible despite the earlier form GET; neither changes the password nor adds a reset-success notice.",
+        "Neither response displays reset success; the deadline is exclusive."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-014",
+      "title": "Eligible reset updates only its associated account password",
+      "requirement_ids": ["REQ-008"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. Seed synthetic A and B with distinct stored password hashes; capture both and issue an eligible A link.",
+        "2. Submit a nonempty new A password before expiry, then inspect stored hashes and verify old/new A passwords using the exercise's password verifier."
+      ],
+      "expected_results": [
+        "A's stored hash differs from its prior hash and the plaintext new password, verifies the new value, and no longer verifies the old value.",
+        "B's password hash remains unchanged; the case does not assume a sign-in success contract or invent a complexity rule."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-015",
+      "title": "Malformed or misbound tokens cannot change another account",
+      "requirement_ids": ["REQ-006", "REQ-008"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. Seed A and B, issue an A link, and snapshot both password hashes and success-notice count.",
+        "2. POST a malformed/unknown token; then POST A's link with a client-controlled B identifier or tampered account-bearing URL, if such input exists.",
+        "3. Complete the original A link legitimately if still unused, then replay it; inspect accounts, notices, and public errors."
+      ],
+      "expected_results": [
+        "Malformed, tampered, and consumed tokens cannot change B or complete an additional reset; invalid paths add no success notice and do not echo token material.",
+        "An untampered eligible A token is bound only to A regardless of any client-controlled account value; B's hash never changes."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-016",
+      "title": "Empty password cannot consume eligible link",
+      "requirement_ids": ["REQ-008"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. Issue a fresh A link and POST an empty new-password field while eligible; inspect password, token use, and result.",
+        "2. Before expiry POST a nonempty new password on that same link and inspect A's password again."
+      ],
+      "expected_results": [
+        "Empty input produces no success, password change, or token consumption; as a proposed UI check, its error is actionable and associated with the field.",
+        "The same still-eligible link can then complete once with a nonempty value; no unspecified complexity or maximum-length policy is asserted."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-017",
+      "title": "Reset invalidates every old session of its account",
+      "requirement_ids": ["REQ-009"],
+      "task_ids": ["TASK-002", "TASK-004"],
+      "steps": [
+        "1. Register two independent active server-side sessions for A and one for B via synthetic fixtures; verify all three initially pass their session authorization check.",
+        "2. Complete an eligible A reset and repeat each session authorization check."
+      ],
+      "expected_results": [
+        "Both previously active A sessions fail the next authorization check; B's unrelated session remains valid.",
+        "Fixture registration does not claim a working sign-in flow or prescribe its success destination."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-018",
+      "title": "Each successful reset records one owner notice",
+      "requirement_ids": ["REQ-010"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. Seed A and issue a first eligible link; snapshot success-notice count, complete A's reset, and inspect the private sink before accepting displayed success.",
+        "2. Issue a distinct second eligible A link and complete a second reset; inspect the sink again.",
+        "3. Submit an expired, malformed, and already-consumed link separately and recount success notices."
+      ],
+      "expected_results": [
+        "Each successful reset adds exactly one A-addressed reset-success notice, separate from link-issuance entries, before success is reported: counts increase by one and then by one again.",
+        "Rejected submissions add zero reset-success notices."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-019",
+      "title": "Recovery operates on synthetic accounts alone",
+      "requirement_ids": ["REQ-011"],
+      "task_ids": ["TASK-002"],
+      "steps": [
+        "1. Instantiate isolated exercise state with synthetic accounts A and B and no production identity credentials or account API configuration.",
+        "2. Request A's recovery link and inspect the private account and link state plus public response."
+      ],
+      "expected_results": [
+        "A's recovery flow can issue a link using only seeded synthetic state and no production identity integration.",
+        "The public response does not expose the synthetic account inventory."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"}
+      ]
+    },
+    {
+      "id": "TC-020",
+      "title": "Link and success notifications stay in private in-memory sink",
+      "requirement_ids": ["REQ-012"],
+      "task_ids": ["TASK-002"],
+      "steps": [
+        "1. Inject a fresh in-process notification sink with no external mail or SMS provider.",
+        "2. Request A's eligible link and complete its reset; query the private fixture by recipient and notice kind.",
+        "3. Request public application routes without fixture access."
+      ],
+      "expected_results": [
+        "The private sink contains an A-addressed reset-link entry and an A-addressed reset-success entry in process without an external notification service.",
+        "Public routes do not serve sink entries or link/token contents."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-021",
+      "title": "Python 3.12 Flask runtime serves sign-in",
+      "requirement_ids": ["REQ-013"],
+      "task_ids": ["TASK-001"],
+      "steps": [
+        "1. In the declared Python 3.12 environment with installed project dependencies, inspect interpreter and framework metadata.",
+        "2. Load the Flask application factory and GET sign-in through Flask's test client."
+      ],
+      "expected_results": [
+        "The interpreter identifies as Python 3.12, the loaded web application is Flask, and the client receives a successful sign-in web response.",
+        "A test under another Python version alone does not establish this criterion."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"}
+      ]
+    },
+    {
+      "id": "TC-022",
+      "title": "Pages are populated server-rendered HTML",
+      "requirement_ids": ["REQ-014"],
+      "task_ids": ["TASK-001", "TASK-003", "TASK-004"],
+      "steps": [
+        "1. With JavaScript disabled or a raw HTTP client, GET sign-in and reset-request pages.",
+        "2. Submit a valid request and fetch its generic response; use separate eligible and ineligible links to GET reset states.",
+        "3. Inspect response HTML without executing browser scripts."
+      ],
+      "expected_results": [
+        "Flask returns populated HTML with appropriate sign-in labels, request control, generic status, and eligible form or ineligible status.",
+        "No page requires JavaScript to construct its primary content from an empty client-only shell."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"}
+      ]
+    },
+    {
+      "id": "TC-023",
+      "title": "Pytest exercises entry, privacy and rate limits",
+      "requirement_ids": ["REQ-015"],
+      "task_ids": ["TASK-005"],
+      "steps": [
+        "1. In the future project test environment, collect pytest tests and inspect their assertion inventory.",
+        "2. Run pytest and inspect assertions for sign-in hierarchy/link navigation, existing/unknown/at-limit public response equivalence, first five/sixth/rolling-hour link counts, and public sink nondisclosure."
+      ],
+      "expected_results": [
+        "Collected automated assertions cover all named entry, request privacy, per-account limit, and public/private-boundary scenarios.",
+        "Pytest exits successfully when the implementation exists; this case records a future gate, not a test result from this design stage."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "attachment", "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84", "locator": "sign-in-wireframe.png"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-024",
+      "title": "Pytest exercises expiry, replay and post-reset effects",
+      "requirement_ids": ["REQ-015"],
+      "task_ids": ["TASK-005"],
+      "steps": [
+        "1. Collect the future pytest suite and inspect assertions for issue-time just-before/exactly-at/after 30 minutes, replay, competing POSTs, and correct-account password updates.",
+        "2. Run pytest and inspect coverage of multiple old sessions rejected and one owner success notice per successful reset with none for rejected submissions."
+      ],
+      "expected_results": [
+        "Collected automated assertions cover every named link-lifecycle, account-isolation, session, and notice scenario.",
+        "Pytest exits successfully when the implementation exists; no execution or passing status is claimed for this proposed case."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-025",
+      "title": "Project documentation discloses production limitations",
+      "requirement_ids": ["REQ-016"],
+      "task_ids": ["TASK-006"],
+      "steps": [
+        "1. Read the future project's user-facing documentation and locate its production limitations.",
+        "2. Check for synthetic accounts, in-memory rather than externally delivered notices, and persistence/integration limits."
+      ],
+      "expected_results": [
+        "Documentation explicitly explains synthetic accounts, volatile single-process account/token/request/session and notification state lost on restart, lack of cross-worker durability, and no real production identity or mail integration.",
+        "The exercise is not described as production-ready."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"}
+      ]
+    },
+    {
+      "id": "TC-026",
+      "title": "Delivery-action record establishes no deployment",
+      "requirement_ids": ["REQ-017"],
+      "task_ids": ["TASK-006"],
+      "steps": [
+        "1. At delivery, obtain the complete approved-run action record, executed commands, and published endpoint or deployment records where available.",
+        "2. Review for application deployment actions and targets, separately from repository changes.",
+        "3. If action history is unavailable or incomplete, document that evidence gap instead of marking the no-deployment criterion passed."
+      ],
+      "expected_results": [
+        "With a complete action record, no performed app deployment or reached deployment target is found.",
+        "Without that record, the outcome is explicitly unverified; repository absence alone is insufficient evidence of no deployment."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"}
+      ]
+    },
+    {
+      "id": "TC-027",
+      "title": "Delivered diff adds no deployment workflow",
+      "requirement_ids": ["REQ-018"],
+      "task_ids": ["TASK-006"],
+      "steps": [
+        "1. At delivery, inspect the complete repository diff and added paths against the starting revision, including automation and configuration.",
+        "2. Examine changed file contents, not only filenames, for deployment jobs, workflow triggers, or deployment-performing configuration."
+      ],
+      "expected_results": [
+        "The delivered changes contain no added deployment workflow, deployment job, or configuration change that performs app deployment.",
+        "The result is determined from the final diff, not presumed from this proposed case."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"}
+      ]
+    },
+    {
+      "id": "TC-028",
+      "title": "Request and generic response are accessible without disclosure",
+      "requirement_ids": ["REQ-002", "REQ-003"],
+      "task_ids": ["TASK-001", "TASK-003"],
+      "steps": [
+        "1. Keyboard and screen-reader navigate the proposed request form; inspect persistent email label, named submit/return actions, focus order/visibility, and readable text.",
+        "2. Submit empty and malformed email separately; inspect field errors and whether either reveals account status.",
+        "3. Submit an otherwise valid request and inspect generic status announcement and keyboard-accessible return action."
+      ],
+      "expected_results": [
+        "Controls have discernible names and logical focus; invalid fields receive associated actionable errors without account-state disclosure.",
+        "A valid request gives a perceivable generic status and accessible return action. Precise validation copy, loading indicators, and recovery-page layout are proposed UI details, not image facts."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-029",
+      "title": "Reset and success or rejection states are accessible",
+      "requirement_ids": ["REQ-006", "REQ-008"],
+      "task_ids": ["TASK-004"],
+      "steps": [
+        "1. With keyboard and assistive technology inspect an eligible new-password form's label, named action, focus and contrast; submit a valid new password.",
+        "2. Inspect success status and return navigation, then open used and expired links and inspect non-success status and navigation without copying tokens into displayed errors."
+      ],
+      "expected_results": [
+        "The password input and actions have discernible names, logical focus and visible indicators; the success state is perceivable and navigable.",
+        "Used/expired links show an actionable announced non-success, never success or token material. Exact copy/layout and any optional confirmation field remain unspecified proposed UI details."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    },
+    {
+      "id": "TC-030",
+      "title": "Public routes cannot reveal private recovery state",
+      "requirement_ids": ["REQ-003", "REQ-005", "REQ-012"],
+      "task_ids": ["TASK-002", "TASK-003"],
+      "steps": [
+        "1. Seed existing A, unknown address, and at-limit A; request public sign-in, request, and confirmation responses for otherwise equivalent scenarios.",
+        "2. Compare public content/status and inspect for account inventory, link URLs, raw tokens, private sink data, or throttle decisions.",
+        "3. Inspect the private fixture to establish whether an eligible A link was issued."
+      ],
+      "expected_results": [
+        "Public response class remains account-independent and exposes none of the private data or limit decisions.",
+        "Issued link data is available to the internal sink fixture, not a public inventory or sink endpoint; this does not require a new API."
+      ],
+      "source_references": [
+        {"source_type": "user_story", "source_id": "user_story", "locator": "characters 0-16000"},
+        {"source_type": "knowledge", "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f", "locator": "v1, chunk 0"}
+      ]
+    }
+  ]
+}

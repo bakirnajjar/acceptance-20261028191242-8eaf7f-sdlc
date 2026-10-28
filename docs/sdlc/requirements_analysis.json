@@ -1,0 +1,374 @@
+{
+  "schema_version": "1.0",
+  "stage": "requirements_analysis",
+  "source_references": [
+    {
+      "source_type": "user_story",
+      "source_id": "user_story",
+      "locator": "characters 0-16000"
+    },
+    {
+      "source_type": "attachment",
+      "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84",
+      "locator": "sign-in-wireframe.png"
+    },
+    {
+      "source_type": "knowledge",
+      "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+      "locator": "v1, chunk 0"
+    }
+  ],
+  "assumptions": [
+    "acceptance-20261028191242-8eaf7f-skill-sentinel — the acceptance skill produced this output.",
+    "acceptance-20261028191242-8eaf7f-same-agent-revision",
+    "The wireframe applies to the sign-in page's observed hierarchy, wording, and visual treatments, not exact pixel dimensions or color codes. The attachment read returned only a reference; the visual observations are supplied in the task and the prior evidence matrix.",
+    "The story has no end marker and the attachment has no acceptance marker to reproduce.",
+    "Synthetic accounts and the in-memory notification sink are development/test mechanisms, not production integrations. For accepted requests for existing accounts, a reset link is recorded in that sink to make the specified recovery flow exercisable; the public response does not reveal whether a link was recorded.",
+    "Until sign-in success behavior and a session model are specified, require the visible sign-in surface and test all-session invalidation where active sessions exist, without prescribing a successful sign-in destination or authentication rules.",
+    "Until reset-page wording and layout are specified, apply the supplied wireframe only to sign-in and use functional recovery criteria for the remaining pages."
+  ],
+  "open_questions": [
+    {
+      "question": "What sign-in success behavior and session model are expected?",
+      "blocking": false,
+      "context": "Interim assumption: specify the visible sign-in surface and require invalidation of every active session when a reset succeeds, without inventing sign-in success behavior."
+    },
+    {
+      "question": "What exact reset-page wording and layout are expected?",
+      "blocking": false,
+      "context": "Interim assumption: the wireframe governs sign-in only; recovery pages are evaluated by their functional behavior, not an invented layout."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "statement": "Render the supplied sign-in surface.",
+      "acceptance_criteria": [
+        "Given a visitor opens sign-in, when the page renders, then it shows a bordered panel headed “Sign in”, labeled “Email address” and “Password” inputs with “name@example.com” and masked “********” placeholders, a blue underlined “Forgot password?” link below the password input, a dark rectangular “Sign in” button below the link, and a muted “No account? Contact your administrator.” footer."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "attachment",
+          "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84",
+          "locator": "sign-in-wireframe.png"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "statement": "Start a password-reset request from the sign-in recovery link.",
+      "acceptance_criteria": [
+        "Given the sign-in page is displayed, when the visitor follows “Forgot password?”, then they reach the password-reset request flow."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "attachment",
+          "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84",
+          "locator": "sign-in-wireframe.png"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "statement": "Return an account-existence-independent response to password-reset requests.",
+      "acceptance_criteria": [
+        "Given otherwise equivalent reset requests for an existing and a nonexistent account, when they are submitted, then their user-visible responses are identical.",
+        "Given reset requests while an existing account is at its request limit, when those and otherwise equivalent requests for a nonexistent account are submitted, then the user-visible responses remain identical and do not disclose account existence or throttling state."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "statement": "Limit reset requests to five per account per hour.",
+      "acceptance_criteria": [
+        "Given five reset requests for an account in the preceding hour, when a sixth is submitted within that hour, then no additional reset link is issued for that account and the user-visible response remains the same generic response.",
+        "Given fewer than five reset requests for an account in the preceding hour, when another request is submitted, then it can be accepted within the limit."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "statement": "Issue a reset link for an accepted request for an existing account.",
+      "acceptance_criteria": [
+        "Given an existing synthetic account below its request limit, when its reset request is accepted, then a reset link for that account is recorded in the in-memory notification sink."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "statement": "Allow each reset link to complete a reset only once.",
+      "acceptance_criteria": [
+        "Given a valid reset link has already completed a password reset, when it is submitted again, then it cannot complete another reset."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "statement": "Expire reset links exactly 30 minutes after they are issued.",
+      "acceptance_criteria": [
+        "Given an otherwise valid unused link whose issue_time is when the link was issued (not when it was requested, sent, or first opened), when it is submitted before issue_time + 30 minutes, then it remains eligible for a password reset.",
+        "Given an otherwise valid unused link, when it is submitted at issue_time + 30 minutes or later, then it is ineligible for a password reset."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "statement": "Update an account password through an eligible reset link.",
+      "acceptance_criteria": [
+        "Given an eligible unused link for a synthetic account, when its reset is completed with a new password, then that account's password is updated."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-009",
+      "statement": "Sign an account out of every active session on successful reset.",
+      "acceptance_criteria": [
+        "Given an account has active sessions, when its password reset succeeds, then none of those sessions remains signed in."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-010",
+      "statement": "Notify the account owner after every successful password reset.",
+      "acceptance_criteria": [
+        "Given an account's password reset succeeds, when completion is processed, then an owner-directed notification for that reset is recorded in the in-memory sink."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-011",
+      "statement": "Use synthetic accounts in the application.",
+      "acceptance_criteria": [
+        "Given the application is exercised, when an account is needed for recovery, then it uses a synthetic account without requiring a production account integration."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        }
+      ]
+    },
+    {
+      "id": "REQ-012",
+      "statement": "Record recovery notifications in an in-memory sink.",
+      "acceptance_criteria": [
+        "Given a recovery notification is generated, when it is delivered, then it is available in an in-memory sink without requiring an external notification service."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-013",
+      "statement": "Run the application on Python 3.12 with Flask.",
+      "acceptance_criteria": [
+        "Given Python 3.12 and the project dependencies, when the application runs, then its web behavior is served by Flask."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        }
+      ]
+    },
+    {
+      "id": "REQ-014",
+      "statement": "Serve application pages as server-rendered HTML.",
+      "acceptance_criteria": [
+        "Given a browser requests an application page, when Flask responds, then the page content is rendered on the server."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        }
+      ]
+    },
+    {
+      "id": "REQ-015",
+      "statement": "Provide automated pytest coverage of the sign-in surface and recovery behavior.",
+      "acceptance_criteria": [
+        "Given the project test environment, when pytest runs, then automated tests check the sign-in surface and recovery behavior including requests, response equality, per-account limiting, links, reset completion, session sign-out where active sessions exist, and owner notification."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "attachment",
+          "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84",
+          "locator": "sign-in-wireframe.png"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "REQ-016",
+      "statement": "Document production limitations.",
+      "acceptance_criteria": [
+        "Given a reader opens the project documentation, when they look for production limitations, then it explains limitations of this small implementation, including synthetic accounts and in-memory notifications."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        }
+      ]
+    },
+    {
+      "id": "REQ-017",
+      "statement": "Do not deploy the application.",
+      "acceptance_criteria": [
+        "Given the delivered work, when its actions are reviewed, then no application deployment has been performed."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        }
+      ]
+    },
+    {
+      "id": "REQ-018",
+      "statement": "Do not add deployment workflows.",
+      "acceptance_criteria": [
+        "Given the delivered repository, when its changes are reviewed, then they contain no added deployment workflow."
+      ],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        }
+      ]
+    }
+  ]
+}

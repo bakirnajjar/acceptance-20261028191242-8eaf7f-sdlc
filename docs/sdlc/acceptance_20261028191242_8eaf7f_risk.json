@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0",
+  "stage": "custom_document",
+  "stage_key": "acceptance_20261028191242_8eaf7f_risk",
+  "summary": "Six prospective delivery risks for the approved password-reset application, linked to all 18 approved requirements. These are verification targets, not observed defects or test results.",
+  "source_references": [
+    {
+      "source_type": "user_story",
+      "source_id": "user_story",
+      "locator": "characters 0-16000"
+    },
+    {
+      "source_type": "attachment",
+      "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84",
+      "locator": "sign-in-wireframe.png"
+    },
+    {
+      "source_type": "knowledge",
+      "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+      "locator": "v1, chunk 0"
+    }
+  ],
+  "assumptions": [
+    "The sign-in image governs its observed hierarchy, wording, and visual treatments, not exact pixels or color codes; the attachment read returned a reference, while the visual observations come from the approved assessment and task.",
+    "Synthetic accounts and the in-memory notification sink are development/test mechanisms, not production integrations. For an accepted request for an existing synthetic account, a link is recorded in the sink without disclosing issuance in the public response.",
+    "Until sign-in success behavior and a session model are specified, require the visible sign-in surface and invalidation of every active session where active sessions exist, without prescribing a successful sign-in destination.",
+    "Until reset-page wording and layout are specified, the supplied image governs sign-in only; recovery pages are evaluated by functional criteria, not an invented design.",
+    "No implementation or test results are established by the authorized evidence. All six risks and suggested checks are prospective."
+  ],
+  "open_questions": [
+    {
+      "question": "What sign-in success behavior and session model are expected?",
+      "blocking": false,
+      "context": "Interim assumption: specify the visible sign-in surface and require invalidation of every active session when a reset succeeds, without inventing sign-in success behavior."
+    },
+    {
+      "question": "What exact reset-page wording and layout are expected?",
+      "blocking": false,
+      "context": "Interim assumption: the wireframe governs sign-in only; recovery pages are evaluated by their functional behavior, not an invented layout."
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Scope and evidence",
+      "body": "The approved requirements_analysis predecessor establishes REQ-001 through REQ-018 and their acceptance criteria; these IDs establish linkage but are not assigned an invented source-reference locator. Original evidence is the user story, sign-in attachment, and curated account recovery standard cited in source_references. Risks concern delivery of the requested Python 3.12/Flask server-rendered exercise with synthetic accounts, an in-memory notification sink, pytest, production-limitations documentation, and no deployment or deployment workflows. The image observations are a visual hierarchy rather than a pixel-perfect specification."
+    },
+    {
+      "heading": "Coverage and interpretation",
+      "body": "RD8CDC-001 covers REQ-001, REQ-002 and REQ-014. RD8CDC-002 covers REQ-003, REQ-004 and REQ-005. RD8CDC-003 covers REQ-006, REQ-007 and REQ-008. RD8CDC-004 covers REQ-009, REQ-010 and REQ-012. RD8CDC-005 covers REQ-011, REQ-012, REQ-013, REQ-014 and REQ-016. RD8CDC-006 covers REQ-015, REQ-017 and REQ-018. Thus every approved requirement has at least one risk link. Suggested checks are prospective, not observed implementation defects, test outcomes, additional requirements or authorization to deploy."
+    }
+  ],
+  "items": [
+    {
+      "id": "RD8CDC-001",
+      "title": "Sign-in surface or recovery entry diverges",
+      "description": "Risk and impact: A sign-in page might contain fields but omit the observed bordered-panel hierarchy, exact labels and placeholder treatment, or the visible link might fail to start recovery. Client-only rendering would miss the server-rendered-page requirement. Users might be unable to reach recovery and the supplied sign-in evidence would not be honored. Mitigation / verification: Render the sign-in page through Flask as server-rendered HTML. Check the bordered panel, bold “Sign in” heading, “Email address” and “Password” labels, name@example.com and masked ******** placeholders, blue underlined “Forgot password?” link beneath the password field, dark rectangular “Sign in” button below the link, and muted “No account? Contact your administrator.” footer. Follow the link on the rendered page and confirm it reaches the reset-request flow. Review hierarchy and visual treatment without imposing exact dimensions or color codes. Do not infer successful sign-in behavior or a reset-page design from the image.",
+      "category": "Sign-in and recovery entry",
+      "priority": null,
+      "requirement_ids": ["REQ-001", "REQ-002", "REQ-014"],
+      "related_ids": [],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "attachment",
+          "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84",
+          "locator": "sign-in-wireframe.png"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "RD8CDC-002",
+      "title": "Enumeration, throttling disclosure, or excess link issuance",
+      "description": "Risk and impact: Distinct public responses for existing, missing, or throttled accounts could reveal account existence or limit state. Issuing a sixth link for an account within the preceding hour breaches the request cap; failing to issue a link for an accepted existing-account request blocks recovery. Mitigation / verification: Keep the user-visible reset-request response identical across otherwise equivalent existing-account, missing-account, and throttled-account cases while separately deciding whether an existing synthetic account is eligible for link issuance. With controlled time and an inspected in-memory sink, exercise requests one through five, a sixth within the preceding hour, and a request once the applicable hour window has passed. Verify no extra link on the sixth, eligible existing-account requests can yield a link, and public responses remain indistinguishable. Do not expose sink contents or throttle status through the public response.",
+      "category": "Request privacy and rate limit",
+      "priority": null,
+      "requirement_ids": ["REQ-003", "REQ-004", "REQ-005"],
+      "related_ids": [],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "RD8CDC-003",
+      "title": "Reset link accepted outside its lifecycle or password unchanged",
+      "description": "Risk and impact: A reused link, an expiry computed from request, sending, or opening time rather than issue time, or an off-by-one comparison could permit an ineligible reset. Conversely, a valid link might not update the intended synthetic account password. Mitigation / verification: Track when each link is issued, treat an unused eligible link as usable only before issue_time + 30 minutes, and prevent a successful link from completing any later reset. With controlled time, test immediately before the boundary, exactly at issue_time + 30 minutes (ineligible), and after it; test second submission of a used link. Verify an eligible completion changes the intended account's password, while ineligible or reused submissions cannot complete another password change.",
+      "category": "Reset link lifecycle",
+      "priority": null,
+      "requirement_ids": ["REQ-006", "REQ-007", "REQ-008"],
+      "related_ids": [],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "RD8CDC-004",
+      "title": "Successful reset leaves sessions active or owner uninformed",
+      "description": "Risk and impact: A password change without invalidating every active session would leave old access in place. A missing owner-directed notification after any successful reset would conceal the change; notifications not recorded in the required in-memory sink would not be inspectable in this exercise. Mitigation / verification: Make successful reset completion include all-session sign-out where active sessions exist and an owner-directed success notification recorded in the in-memory sink after every success. Set up multiple active sessions for a synthetic account where the implementation supports them and verify none remains signed in after completion; verify a sink entry per successful reset. Keep the session-model question open rather than prescribing sign-in success behavior. Distinguish success notifications from reset-link issuance in the sink.",
+      "category": "Post-reset effects",
+      "priority": null,
+      "requirement_ids": ["REQ-009", "REQ-010", "REQ-012"],
+      "related_ids": [],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "RD8CDC-005",
+      "title": "Exercise architecture misrepresented as production-ready",
+      "description": "Risk and impact: Substituting a production account integration or external notification provider for the specified synthetic accounts and in-memory sink would change the exercise's scope; conversely, presenting volatile demo mechanisms as production-grade persistence or delivery would mislead readers. A different runtime or framework, or non-server-rendered pages, would also violate the approved delivery constraints. Mitigation / verification: Inspect the Python 3.12/Flask runtime and rendered page responses; exercise recovery with synthetic accounts and inspect generated notifications in the in-memory sink without requiring an external service. Confirm project documentation clearly describes synthetic-account and volatile-notification limitations and does not suggest production persistence, actual external notification delivery, or a deployment target.",
+      "category": "Exercise architecture and limitations",
+      "priority": null,
+      "requirement_ids": ["REQ-011", "REQ-012", "REQ-013", "REQ-014", "REQ-016"],
+      "related_ids": [],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    },
+    {
+      "id": "RD8CDC-006",
+      "title": "Policy gaps in tests or unauthorized deployment work",
+      "description": "Risk and impact: A narrow happy-path pytest suite could miss image and entry-flow deviations, account enumeration including at-limit responses, the sixth-request cutoff, link reuse or expiry boundary, password update, all-session sign-out where active sessions exist, or notification after each success. Deploying the app or adding a deployment workflow would exceed the expressly approved scope. Mitigation / verification: Review pytest coverage for the sign-in surface, link navigation, equivalent public responses, per-account-hour limit and sink effects, link issue-time boundary and single use, password update, session invalidation where applicable, and owner notifications after every successful reset. Run pytest when an implementation exists. Review delivery actions and repository changes to verify no deployment was performed and no deployment workflow was added; do not propose a deployment target.",
+      "category": "Test and delivery scope",
+      "priority": null,
+      "requirement_ids": ["REQ-015", "REQ-017", "REQ-018"],
+      "related_ids": [],
+      "source_references": [
+        {
+          "source_type": "user_story",
+          "source_id": "user_story",
+          "locator": "characters 0-16000"
+        },
+        {
+          "source_type": "attachment",
+          "source_id": "457acc5e-8bce-44d6-abec-d204c28e4d84",
+          "locator": "sign-in-wireframe.png"
+        },
+        {
+          "source_type": "knowledge",
+          "source_id": "28e06fb4-ccd1-4117-8f7b-b2a6c9bfaf1f",
+          "locator": "v1, chunk 0"
+        }
+      ]
+    }
+  ]
+}

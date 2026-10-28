@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Request received{% endblock %}
+{% block content %}
+  <section class="panel" aria-labelledby="page-heading">
+    <h1 id="page-heading">Request received</h1>
+    <p role="status">If the address is registered and eligible, a password reset link will be sent.</p>
+    <a class="back-link" href="{{ url_for('sign_in') }}">Back to sign in</a>
+  </section>
+{% endblock %}
