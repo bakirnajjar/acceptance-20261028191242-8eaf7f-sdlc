@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "round": 3,
+  "verdict": "changes_requested",
+  "summary": "Final independent base-to-head review: Python 3.12 compilation, all 40 pytest tests, Ruff check, and Ruff format check pass. No new substantiated implementation defect was found. REV-001 remains open and blocking: TC-026 and REQ-017 cannot be verified without an authoritative complete run-wide delivery-action history. Browser visual and assistive-technology checks remain manual.",
+  "gates": {
+    "build": "pass",
+    "tests": "pass",
+    "lint": "pass"
+  },
+  "findings": [
+    {
+      "id": "REV-001",
+      "severity": "medium",
+      "blocking": true,
+      "status": "open",
+      "title": "No run-wide evidence to verify the no-deployment requirement",
+      "description": "REQ-017 and TC-026 require a complete run-wide executed-action/deployment record to establish that no application deployment occurred. evidence-disposition.md:3-9 explicitly confirms no authoritative complete record is available and that TC-026 remains unverified; no subsequent reviewed artifact supplies it. The base-to-head repository diff adds no deployment workflow, job or deployment-performing configuration, satisfying the separate repository inspection for REQ-018 but not proving absence of an external deployment action. No deployment was observed or is alleged; this remains an evidence gap, not a product-code defect.",
+      "file": ".github/futuristic/3764fb4b-50d2-4ead-b075-e3cc7081b653/evidence-disposition.md",
+      "line": 9,
+      "requirement_ids": [
+        "REQ-017"
+      ],
+      "recommendation": "If an authoritative complete run-wide executed-action/deployment history becomes available, review it for TC-026. Otherwise retain REQ-017 as partial and REV-001 as open; do not infer either a deployment or its absence from repository changes."
+    }
+  ],
+  "requirement_coverage": [
+    {
+      "requirement_id": "REQ-001",
+      "status": "covered",
+      "evidence": "GET /sign-in renders the bordered sign-in panel, labels, placeholders, link, button and footer in src/password_reset_exercise/templates/sign_in.html:4-20; static/style.css:11-27,30-34,62-82,90-94 supplies observed treatments. tests/test_entry_pages.py:49-94 passes structural checks; rendered-browser image fidelity and assistive-technology checks in TC-001/002 remain manual, with no exact pixel/color requirement."
+    },
+    {
+      "requirement_id": "REQ-002",
+      "status": "covered",
+      "evidence": "sign_in.html:17 links to Flask GET /password/forgot in __init__.py:124-127, rendering a labeled reset-request form; tests/test_entry_pages.py:125-135 verifies navigation."
+    },
+    {
+      "requirement_id": "REQ-003",
+      "status": "covered",
+      "evidence": "__init__.py:139-151 renders the same generic confirmation for valid existing, unknown and capped requests; tests/test_request_reset.py:48-59,77-97 compares status, HTML and navigation at and below the cap and inspects nondisclosure."
+    },
+    {
+      "requirement_id": "REQ-004",
+      "status": "covered",
+      "evidence": "state.py:110-133 counts accepted requests within (now-1 hour, now] under the shared lock; tests/test_request_reset.py:77-127 and 201-210 verify five allowed, sixth blocked, independent accounts, exact rollover and concurrent limiting."
+    },
+    {
+      "requirement_id": "REQ-005",
+      "status": "covered",
+      "evidence": "state.py:123-133 issues an owner-bound opaque link into the private in-memory sink; tests/test_request_reset.py:130-167 verifies the recipient, link, token digest, issue time and usable reset form."
+    },
+    {
+      "requirement_id": "REQ-006",
+      "status": "covered",
+      "evidence": "state.py:135-152 rejects consumed links and complete_reset at state.py:159-185 consumes a link under one lock; tests/test_complete_reset.py:69-122 covers replay and competing POSTs."
+    },
+    {
+      "requirement_id": "REQ-007",
+      "status": "covered",
+      "evidence": "state.py:114-133 records the issuance timestamp; state.py:149 requires submission strictly before issued_at+30 minutes; tests/test_complete_reset.py:125-165 and tests/test_verification.py:136-195 cover immediately before, exactly at and after expiry."
+    },
+    {
+      "requirement_id": "REQ-008",
+      "status": "covered",
+      "evidence": "__init__.py:153-182 accepts the eligible reset form; state.py:164-185 hashes and replaces only the token-bound account password; tests/test_complete_reset.py:168-251 checks new/old hashes, other-account isolation, invalid tokens and empty-input rejection."
+    },
+    {
+      "requirement_id": "REQ-009",
+      "status": "covered",
+      "evidence": "state.py:169-176 advances the owner's generation and state.py:187-205 checks registered sessions against that generation; tests/test_complete_reset.py:168-193 and tests/test_verification.py:136-180 verify multiple old sessions rejected and another owner's session retained. No sign-in success semantics are specified or claimed."
+    },
+    {
+      "requirement_id": "REQ-010",
+      "status": "covered",
+      "evidence": "state.py:174-185 appends an owner-directed reset_success notification before returning success; tests/test_complete_reset.py:254-286 verifies two distinct successes and no notice for rejected resets."
+    },
+    {
+      "requirement_id": "REQ-011",
+      "status": "covered",
+      "evidence": "state.py:67-96 registers isolated synthetic accounts without identity service; tests/test_recovery_state.py:17-33,85-101 checks hashed accounts and instance isolation."
+    },
+    {
+      "requirement_id": "REQ-012",
+      "status": "covered",
+      "evidence": "state.py:75,129-133,174-185,233-237 stores link and success notices privately in memory; tests/test_recovery_state.py:63-82 and tests/test_request_reset.py:130-167 inspect private entries and no public sink endpoints."
+    },
+    {
+      "requirement_id": "REQ-013",
+      "status": "covered",
+      "evidence": ".python-version and pyproject.toml:5-8 declare Python 3.12 and Flask; tests/test_entry_pages.py:153-158 asserts the 3.12 runtime and working Flask factory; the full pytest gate ran on Python 3.12.3."
+    },
+    {
+      "requirement_id": "REQ-014",
+      "status": "covered",
+      "evidence": "__init__.py:120-182 uses Flask render_template for sign-in, request, confirmation and reset states; tests/test_entry_pages.py:161-179, tests/test_request_reset.py:63-75 and tests/test_complete_reset.py:289-331 inspect populated raw HTML without JavaScript."
+    },
+    {
+      "requirement_id": "REQ-015",
+      "status": "covered",
+      "evidence": "40 pytest tests passed, including entry/recovery parity, rolling cap and concurrency, issue-time expiry, replay, account isolation, session invalidation and per-success notification in tests/test_entry_pages.py, test_request_reset.py, test_complete_reset.py and test_verification.py. Coding tests.json lists 24/30 automated cases; TC-001/002/028/029 additionally require manual visual/keyboard/AT inspection, and TC-026/027 are delivery checks rather than pytest behavior."
+    },
+    {
+      "requirement_id": "REQ-016",
+      "status": "covered",
+      "evidence": "README.md:59-82 states synthetic accounts, in-memory notices, process-local restart loss, cross-worker limits, missing real identity/mail/durable delivery and no production readiness; tests/test_documentation.py:6-30 checks the disclosures."
+    },
+    {
+      "requirement_id": "REQ-017",
+      "status": "partial",
+      "evidence": "No deployment action was observed in the reviewed materials; README.md:81-82 says not to deploy. coding-report.md:42 and evidence-disposition.md:3-9 explicitly state no complete authoritative run-wide action/deployment history is available. TC-026 in docs/sdlc/test_case_design.md:258-265 treats missing records as unverified. A workflow-free diff does not close REV-001."
+    },
+    {
+      "requirement_id": "REQ-018",
+      "status": "covered",
+      "evidence": "Inspected the full git diff --name-status from 50b661e57973de16a23e801e305160a08b0ae01d through HEAD, changed source, templates, tests, configuration, documentation and review artifacts: no .github/workflows path, deployment job or deployment-performing configuration was added. TC-027 is a repository check, not proof for TC-026."
+    }
+  ]
+}
