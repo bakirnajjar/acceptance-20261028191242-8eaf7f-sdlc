@@ -1,0 +1,12 @@
+# Python and uv
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Local quality-gate output
+.pytest_cache/
+.ruff_cache/
+.modernization-scratch/
