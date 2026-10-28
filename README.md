@@ -6,9 +6,10 @@ Synthetic, disposable repository for a Futuristic Agentic SDLC deployed acceptan
 ## Python package scaffold
 
 This is a Python 3.12 Flask/Jinja project using a `src/` package layout.
-The current scaffold exposes an application factory but **no feature routes yet**;
-the development server will return 404 for application pages until the later tasks
-implement them. Do not use the Flask development server for production.
+The application factory serves the sign-in page at `/sign-in` and the password
+reset request form at `/password/forgot`. Form submissions are not implemented
+yet (POST returns 405); there is no sign-in success or reset-link issuance.
+Do not use the Flask development server for production.
 
 Install [uv](https://docs.astral.sh/uv/) and Python 3.12, then from the repository root:
 
