@@ -20,6 +20,7 @@
   ],
   "assumptions": [
     "acceptance-20261028191242-8eaf7f-skill-sentinel — the acceptance skill produced this output.",
+    "acceptance-20261028191242-8eaf7f-same-agent-revision",
     "The wireframe applies to the sign-in page's observed hierarchy, wording, and visual treatments, not exact pixel dimensions or color codes. The attachment read returned only a reference; the visual observations are supplied in the task and the prior evidence matrix.",
     "The story has no end marker and the attachment has no acceptance marker to reproduce.",
     "Synthetic accounts and the in-memory notification sink are development/test mechanisms, not production integrations. For accepted requests for existing accounts, a reset link is recorded in that sink to make the specified recovery flow exercisable; the public response does not reveal whether a link was recorded.",
@@ -167,10 +168,10 @@
     },
     {
       "id": "REQ-007",
-      "statement": "Expire reset links 30 minutes after issuance.",
+      "statement": "Expire reset links exactly 30 minutes after they are issued.",
       "acceptance_criteria": [
-        "Given an unused link issued less than 30 minutes ago, when it is submitted, then it remains eligible for a password reset.",
-        "Given an unused link issued 30 minutes ago or earlier, when it is submitted, then it cannot complete a password reset."
+        "Given an otherwise valid unused link whose issue_time is when the link was issued (not when it was requested, sent, or first opened), when it is submitted before issue_time + 30 minutes, then it remains eligible for a password reset.",
+        "Given an otherwise valid unused link, when it is submitted at issue_time + 30 minutes or later, then it is ineligible for a password reset."
       ],
       "source_references": [
         {
