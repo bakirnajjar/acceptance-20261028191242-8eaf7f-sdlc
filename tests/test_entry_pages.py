@@ -73,6 +73,11 @@ def test_tc_001_sign_in_surface_structure() -> None:
     footer, _ = element(document, "p", **{"class": "footer-note"})
     assert next_text(document, footer) == "No account? Contact your administrator."
     assert heading < email < password < link < button < footer
+    panel, panel_attrs = element(
+        document, "section", **{"class": "panel sign-in-panel"}
+    )
+    assert panel < heading
+    assert panel_attrs["aria-labelledby"] == "page-heading"
 
     _, style = element(document, "link", rel="stylesheet")
     stylesheet = client.get(style["href"])
@@ -81,8 +86,12 @@ def test_tc_001_sign_in_surface_structure() -> None:
     assert "place-items: center" in css
     assert "border: 1px solid" in css
     assert "background: #fff" in css
+    assert "font-weight: 700" in css
+    assert "color: #1552b0" in css
     assert "text-decoration: underline" in css
     assert "width: 100%" in css
+    assert "background: #1f2937" in css
+    assert ".footer-note" in css
 
 
 def test_tc_002_sign_in_labels_and_control_order() -> None:
