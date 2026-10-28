@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Password reset complete{% endblock %}
+{% block content %}
+  <section class="panel" aria-labelledby="page-heading">
+    <h1 id="page-heading">Password reset complete</h1>
+    <p role="status">Your password has been reset. You can now return to sign in.</p>
+    <a class="back-link" href="{{ url_for('sign_in') }}">Back to sign in</a>
+  </section>
+{% endblock %}

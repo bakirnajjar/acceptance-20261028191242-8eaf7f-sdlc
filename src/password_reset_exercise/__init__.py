@@ -107,6 +107,16 @@ def create_app(
             session["recovery_csrf"] = token_urlsafe(32)
         return session["recovery_csrf"]
 
+    def valid_csrf() -> bool:
+        expected = session.get("recovery_csrf")
+        provided = request.form.get("csrf_token", "")
+        return (
+            isinstance(expected, str)
+            and isinstance(provided, str)
+            and bool(expected)
+            and compare_digest(expected, provided)
+        )
+
     @app.get("/sign-in")
     def sign_in() -> str:
         return render_template("sign_in.html")
@@ -116,14 +126,7 @@ def create_app(
         if request.method == "GET":
             return render_template("forgot_password.html", csrf_token=form_csrf_token())
 
-        expected = session.get("recovery_csrf")
-        provided = request.form.get("csrf_token", "")
-        if (
-            not isinstance(expected, str)
-            or not isinstance(provided, str)
-            or not expected
-            or not compare_digest(expected, provided)
-        ):
+        if not valid_csrf():
             return (
                 render_template(
                     "forgot_password.html",
@@ -146,5 +149,36 @@ def create_app(
 
         app.extensions["recovery_state"].request_reset(email, origin)
         return render_template("request_received.html")
+
+    @app.route("/password/reset/<token>", methods=["GET", "POST"])
+    def reset_password(token: str):
+        state: RecoveryState = app.extensions["recovery_state"]
+        if not state.check_link(token):
+            return render_template("reset_ineligible.html"), 410
+        if request.method == "GET":
+            return render_template("reset_password.html", csrf_token=form_csrf_token())
+
+        if not valid_csrf():
+            return (
+                render_template(
+                    "reset_password.html",
+                    csrf_token=form_csrf_token(),
+                    form_error="Please refresh the form and try again.",
+                ),
+                400,
+            )
+        new_password = request.form.get("new_password", "")
+        if not isinstance(new_password, str) or not new_password.strip():
+            return (
+                render_template(
+                    "reset_password.html",
+                    csrf_token=form_csrf_token(),
+                    password_error="Enter a new password.",
+                ),
+                400,
+            )
+        if not state.complete_reset(token, new_password):
+            return render_template("reset_ineligible.html"), 410
+        return render_template("reset_success.html")
 
     return app

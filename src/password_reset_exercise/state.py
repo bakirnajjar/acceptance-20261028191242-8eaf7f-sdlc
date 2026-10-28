@@ -1,5 +1,6 @@
 """Private, single-process synthetic recovery state; no authentication routes."""
 
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
@@ -59,9 +60,8 @@ class Notification:
 class RecoveryState:
     """One app's volatile store and private sink, protected by one shared lock.
 
-    Future request and completion operations must hold ``_lock`` across their
-    entire check-and-write sequences, including changes to requests, tokens,
-    accounts, sessions and notifications.
+    Request and completion operations hold ``_lock`` across their entire
+    check-and-write sequences, including private notifications.
     """
 
     def __init__(self, clock: Clock | None = None) -> None:
@@ -131,6 +131,58 @@ class RecoveryState:
             self._requests.append(ResetRequest(account_id, now))
             self._tokens[digest] = ResetToken(digest, account_id, now)
             self._notifications.append(notification)
+
+    def _eligible_token(self, raw_token: str, now: datetime) -> ResetToken | None:
+        """Look up only issued token digests; caller holds the shared lock."""
+        if (
+            not isinstance(raw_token, str)
+            or re.fullmatch(r"[A-Za-z0-9_-]{43}", raw_token, re.ASCII) is None
+        ):
+            return None
+        digest = sha256(raw_token.encode("ascii")).hexdigest()
+        token = self._tokens.get(digest)
+        if (
+            token is None
+            or token.digest != digest
+            or token.used
+            or token.account_id not in self._accounts_by_id
+            or not token.issued_at <= now < token.issued_at + timedelta(minutes=30)
+        ):
+            return None
+        return token
+
+    def check_link(self, raw_token: str) -> bool:
+        """Check current eligibility without reserving or consuming the link."""
+        with self._lock:
+            return self._eligible_token(raw_token, self.now()) is not None
+
+    def complete_reset(self, raw_token: str, new_password: str) -> bool:
+        """Atomically complete one eligible reset and privately notify its owner."""
+        if not isinstance(new_password, str) or not new_password:
+            return False
+        with self._lock:
+            now = self.now()
+            token = self._eligible_token(raw_token, now)
+            if token is None:
+                return False
+            account = self._accounts_by_id[token.account_id]
+            replacement = replace(
+                account,
+                password_hash=generate_password_hash(new_password),
+                session_generation=account.session_generation + 1,
+            )
+            notification = Notification("reset_success", account.normalized_email, now)
+            self._accounts_by_id[token.account_id] = replacement
+            self._tokens[token.digest] = replace(token, used=True)
+            notice_count = len(self._notifications)
+            try:
+                self._notifications.append(notification)
+            except (RuntimeError, OSError):
+                self._accounts_by_id[token.account_id] = account
+                self._tokens[token.digest] = token
+                del self._notifications[notice_count:]
+                return False
+            return True
 
     def register_session(self, account_id: str) -> Session:
         """Register a fixture session without defining any sign-in success flow."""

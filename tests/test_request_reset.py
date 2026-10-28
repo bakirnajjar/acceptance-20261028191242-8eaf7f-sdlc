@@ -158,8 +158,13 @@ def test_tc_009_020_030_link_only_in_private_sink_and_digest_only_in_state() -> 
     assert "form-action 'self'" in response.headers["Content-Security-Policy"]
     for path in ("/notifications", "/sink", "/tokens", "/accounts"):
         assert client.get(path).status_code == 404
-    # The reset form itself is deliberately reserved for TASK-004/T005.
-    assert client.get(link.path).status_code == 404
+    # A private link now opens the eligible form without consuming its token.
+    eligible = client.get(link.path)
+    assert eligible.status_code == 200
+    assert '<label for="new-password">New password</label>' in eligible.get_data(
+        as_text=True
+    )
+    assert state._tokens[digest].used is False
 
 
 def test_tc_028_invalid_email_has_associated_error_without_echo_or_issuance() -> None:

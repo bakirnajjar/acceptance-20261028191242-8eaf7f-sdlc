@@ -10,8 +10,9 @@ The application factory serves the sign-in page at `/sign-in` and the password
 reset request form at `/password/forgot`. POSTing a valid form returns the same
 generic confirmation for registered, unknown, and rate-limited addresses.
 Registered synthetic accounts receive at most five private reset links in a
-rolling hour. Reset-link redemption and sign-in success are not implemented yet;
-the link path will return 404 until the next task.
+rolling hour. An eligible link opens a new-password form, expires 30 minutes
+after issuance, and can complete a reset only once. Sign-in success is not
+implemented.
 Do not use the Flask development server for production.
 
 Install [uv](https://docs.astral.sh/uv/) and Python 3.12, then from the repository root:
